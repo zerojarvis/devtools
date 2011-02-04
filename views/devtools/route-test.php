@@ -29,7 +29,7 @@
 <h1>Route Tester:</h1>
 
 <p>
-	<?php echo Form::open() ?>
+	<?php echo Form::open(Request::current()->uri()) ?>
 		<label>Test the url:</label>
 		<?php echo Form::input('url',arr::get($_POST,'url'),array('style'=>'width:300px')) ?>
 		<?php echo form::submit('test','Test'); ?>
@@ -91,9 +91,12 @@
 				?>
 				
 			<?php else: ?>
-			
+			          <pre>
+<?php print_r($test);?>
+          </pre>
 				<?php foreach ($test->params as $key => $value): ?>
-					<tr><td><?php echo $key ?>:</td><td colspan="2"><?php echo $value ?></td></tr>
+
+					<tr><td><?php //echo $key ?>:</td><td colspan="2"><?php //echo $value ?></td></tr>
 				<?php endforeach; ?>
 				
 			<?php endif; ?>
@@ -132,7 +135,7 @@
 			{
 				foreach ($test->params as $key => $value)
 				{
-					echo '   '.str_pad($key.':',15).$value."\n";
+					//echo '   '.str_pad($key.':',15).$value."\n";
 				}
 			}
 		}

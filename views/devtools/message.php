@@ -8,10 +8,10 @@ foreach ($messages as $path => $name)
 	
 	try
 	{
-		echo Kohana::debug(Kohana::message($name));
+		echo Debug::vars(Kohana::message($name));
 	}
 	catch (exception $e)
 	{
-		echo "Something went terribly wrong. Error message: " . Kohana::exception_text($e);
+		echo "Something went terribly wrong. Error message: " . Kohana_Exception::text($e);
 	}
 }

@@ -8,12 +8,12 @@ foreach ($configs as $path => $name)
 	
 	try
 	{
-		echo Kohana::debug(Kohana::config($name));
+		echo Debug::vars(Kohana::config($name));
 	}
 	catch (exception $e)
 	{
 		echo "Something went terribly wrong. This is usually caused by
 		      undefined constants because of missing dependancies. Error
-			  message: " . Kohana::exception_text($e);
+			  message: " . Kohana_Exception::text($e);
 	}
 }

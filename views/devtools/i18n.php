@@ -8,10 +8,10 @@ foreach ($i18n as $path => $name)
 	
 	try
 	{
-		echo Kohana::debug(I18n::load($name));
+		echo Debug::vars(I18n::load($name));
 	}
 	catch (exception $e)
 	{
-		echo "Something went terribly wrong. Error message: " . Kohana::exception_text($e);
+		echo "Something went terribly wrong. Error message: " . Kohana_Exception::text($e);
 	}
 }
