@@ -29,9 +29,9 @@
 <h1>Route Tester:</h1>
 
 <p>
-	<?php echo Form::open() ?>
+	<?php echo Form::open(Request::current()) ?>
 		<label>Test the url:</label>
-		<?php echo Form::input('url',arr::get($_POST,'url'),array('style'=>'width:300px')) ?>
+		<?php echo Form::input('url',Arr::get($_POST,'url'),array('style'=>'width:300px')) ?>
 		<?php echo form::submit('test','Test'); ?>
 	<?php echo Form::close() ?>
 </p>
