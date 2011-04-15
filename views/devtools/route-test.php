@@ -124,7 +124,7 @@
 			{
 				foreach ($test->get_params() as $name => $param)
 				{
-					echo ($param['error'] ? ' ✓ ' : ' ! ' ).str_pad(str_pad($name.': ',15).$param['result'].' ',35).'(expecting '.$param['expected'].")\n";
+					echo ($param['error'] ? ' ! ' : ' ✓ ' ).str_pad(str_pad($name.': ',15).$param['result'].' ',35).'(expecting '.$param['expected'].")\n";
 				}
 				
 			}
