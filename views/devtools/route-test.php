@@ -31,7 +31,7 @@
 <p>
 	<?php echo Form::open(Request::current(), array('method' => 'GET')) ?>
 		<label>Test the url:</label>
-		<?php echo Form::input('url',Arr::get($_POST,'url'),array('style'=>'width:300px')) ?>
+		<?php echo Form::input('url', Request::current()->query('url'),array('style'=>'width:300px')) ?>
 		<?php echo form::submit(NULL,'Test'); ?>
 	<?php echo Form::close() ?>
 </p>
