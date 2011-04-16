@@ -92,6 +92,82 @@ class Devtools_Route_Tester {
 	}
 	
 	/**
+	 * Load tests from a unittest test_data folder and refatore the array
+	 * to make it compatible with route::test pattern
+	 * 
+	 * Your unittest provider must be like this:
+	 *     return = array(
+	 *         array(array(
+	 *             'guide/media/image.png' = array(
+	 *                 'route' => 'docs/media',
+	 *                 'controller' => 'userguide',
+	 *                 'action' => 'media',
+	 *                 'file' => 'image.png',
+	 *             ),
+	 *         )),
+	 *         array(array(
+	 *             'blog/5/some-title' = array(
+	 *                 'route' => 'blog',
+	 *                 'controller' => 'blog',
+	 *                 'action' => 'article',
+	 *                 'id' => '5',
+	 *                 'title' => 'some-title',title' => 'some-title',
+	 *             ),
+	 *         )),
+	 *     );
+	 * 
+	 * It's usefull to keep a generic unittest and visual dump of tests with
+	 * devtools/routetest
+	 * 
+	 * To load your files in the config/route-test.php will be like this:
+	 * 
+	 *     return Route_Tester::load( Kohana::find_file('tests', 'test_data/routes/user') );
+	 * 
+	 * And you can load all test files from a folder like this:
+	 * 
+	 *     return Route_Tester::load( Kohana::list_files('tests/test_data/routes') );
+	 * 
+	 * finaly you can merge config-tests with your unittests (file or folder style) like this:
+	 * 
+	 *     return Route_Tester::load( Kohana::list_files('tests/test_data/routes') ) + array(
+	 *         'blog/5/some-title` = array(
+	 *             'route' => 'blog',
+	 *             'controller' => 'blog',
+	 *             'action' => 'article',
+	 *             'id' => '5',
+	 *             'title' => 'some-title',
+	 *         ),
+	 *     );
+	 * 
+	 * 
+	 * @author Gabriel Reitz Giannattasio <gabriel@fleep.me>
+	 * 
+	 * @param   mixed  will include a file or a array list of files
+	 * @return  array  formated config route-test 
+	 */
+	public static function load($kohana_files) 
+	{
+		$tests = array();
+		
+		if(is_array($kohana_files))
+		{
+			foreach ($kohana_files as $file)
+			{
+				foreach (Kohana::load($file) as $test)
+					$tests = is_array($test[0])
+					       ? ($tests+$test[0])
+					       : $tests;
+			}
+		}
+		else 
+		{
+			foreach (Kohana::load($kohana_files) as $test)
+				$tests += $test[0];
+		}
+		return $tests;
+	}
+	
+	/**
 	 * Get an array of Route_Tester objects from the config settings
 	 *
 	 * @param  $tests  A URL to test, or an array of URLs to test.
