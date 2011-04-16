@@ -86,6 +86,8 @@
 				<?php
 				foreach ($test->get_params() as $name => $param)
 				{
+					$param['result'] = ($param['result'] == '')?'[none]':$param['result'];
+					$param['expected'] = ($param['expected'] == '')?'[none]':$param['expected'];
 					echo "<tr><td>{$name}</td><td".($param['error'] ? ' class="error"':' class="pass"').">{$param['result']}</td><td".($param['error'] ? ' class="error"':' class="pass"').">{$param['expected']}</td>";
 				}
 				?>
@@ -124,6 +126,8 @@
 			{
 				foreach ($test->get_params() as $name => $param)
 				{
+					$param['result'] = ($param['result'] == '')?'[none]':$param['result'];
+					$param['expected'] = ($param['expected'] == '')?'[none]':$param['expected'];					
 					echo ($param['error'] ? ' ! ' : ' ✓ ' ).str_pad(str_pad($name.': ',15).$param['result'].' ',35).'(expecting '.$param['expected'].")\n";
 				}
 				

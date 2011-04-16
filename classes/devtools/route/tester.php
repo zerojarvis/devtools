@@ -234,13 +234,13 @@ class Devtools_Route_Tester {
 			
 			if ( ! isset($options['expected']))
 			{
-				$array[$item]['expected'] = '[none]';
+				$array[$item]['expected'] = '';
 			}
 			else if ( ! isset($options['result']))
 			{
-				$array[$item]['result'] = '[none]';
+				$array[$item]['result'] = '';
 			}
-			else if ($options['result'] == $options['expected'])
+			else if ($options['result'] === $options['expected'])
 			{
 				$array[$item]['error'] = FALSE;
 			}
