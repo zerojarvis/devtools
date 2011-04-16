@@ -71,15 +71,15 @@
 	<?php foreach ($tests as $test) :?>
 	
 	<table class="route-test">
-		<tr><th colspan="3">Testing the url "<code><?php echo $test->url ?></code>"</th></tr>
+		<tr><th colspan="3">Testing the url "<code><?php echo $test->url() ?></code>"</th></tr>
 		
-		<?php if ($test->route === FALSE): ?>
+		<?php if ($test->route() === FALSE): ?>
 		
 			<tr><td colspan="3" class="error">Did not match any routes</td></tr>
 		
 		<?php else:?>
 		
-			<?php if ($test->expected_params): ?>
+			<?php if ($test->expected_params()): ?>
 				
 				<tr><th>param</th><th>result</th><th>expected</th>
 			
@@ -92,7 +92,7 @@
 				
 			<?php else: ?>
 			
-				<?php foreach ($test->params as $key => $value): ?>
+				<?php foreach ($test->params() as $key => $value): ?>
 					<tr><td><?php echo $key ?>:</td><td colspan="2"><?php echo $value ?></td></tr>
 				<?php endforeach; ?>
 				
@@ -112,15 +112,15 @@
 	foreach ($tests as $test)
 	{
 	
-		echo "Testing the url \"{$test->url}\"\n";
+		echo "Testing the url \"{$test->url()}\"\n";
 		
-		if ($test->route === FALSE)
+		if ($test->route() === FALSE)
 		{
 			echo " ! Did not match any routes\n";
 		}
 		else
 		{
-			if ($test->expected_params)
+			if ($test->expected_params())
 			{
 				foreach ($test->get_params() as $name => $param)
 				{
@@ -130,7 +130,7 @@
 			}
 			else
 			{
-				foreach ($test->params as $key => $value)
+				foreach ($test->params() as $key => $value)
 				{
 					echo '   '.str_pad($key.':',15).$value."\n";
 				}

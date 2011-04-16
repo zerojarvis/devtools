@@ -7,17 +7,25 @@
  */
 class Devtools_Route_Tester {
 	
-	// The url for this test
-	public $url;
+	/**
+	 * @var string  url for test
+	 */
+	protected $_url;
 	
-	// The route this url matched
-	public $route = FALSE;
+	/**
+	 * @var string  the route that this url matched
+	 */
+	protected $_route;
 	
-	// The params the route returned
-	public $params;
+	/**
+	 * @var array   the returned params from route 
+	 */
+	protected $_params = array();
 	
-	// The optional expected params from the config
-	public $expected_params = FALSE;
+	/**
+	 * @var array   the optional expected params from the config file
+	 */
+	protected $_expected_params;
 
 	/**
 	 * Test a URL or an array of URLs to see which routes they match.
@@ -96,7 +104,7 @@ class Devtools_Route_Tester {
 			$tests = array($tests);
 		}
 		
-		$array = array();
+		$tests_instances = array();
 		
 		// Get the url and optional expected_params from the config
 		foreach ($tests as $key => $value)
@@ -104,31 +112,26 @@ class Devtools_Route_Tester {
 			$current = new Route_Tester();
 			
 			if (is_array($value))
-			{
-				$current->url = $key;
-				$current->expected_params = $value;
-			}
+				$current->url($key)->expected_params($value);
 			else
-			{
-				$current->url = $value;
-			}
+				$current->url($value);
 		
 			// Test each route, and save the route and params if it matches
 			foreach (Route::all() as $route)
 			{
-				if ($current->params = $route->matches($current->url))
+				if ($current->params( $route->matches($current->url()) ))
 				{
-					$current->route = Route::name($route);
-					$current->params = array_merge(array('route'=>$current->route),$current->params);
+					$current->route(Route::name($route))
+						->params( array('route' => $current->route()) );
 					break;
 				}
 			}
 			
-			$array[] = $current;
+			$tests_instances[] = $current;
 			
 		}
 		
-		return $array;
+		return $tests_instances;
 		
 	}
 	
@@ -137,12 +140,12 @@ class Devtools_Route_Tester {
 		$array = array();
 		
 		// Add the result and expected keys to the array
-		foreach ($this->params as $param => $value)
+		foreach ($this->params() as $param => $value)
 		{
 			$array[$param]['result'] = $value;
 		}
 		
-		foreach ($this->expected_params as $param => $value)
+		foreach ($this->expected_params() as $param => $value)
 		{
 			$array[$param]['expected'] = $value;
 		}
@@ -151,7 +154,7 @@ class Devtools_Route_Tester {
 		foreach ($array as $item => $options)
 		{
 			// Assume they don't match.
-			$array[$item]['error'] = true;
+			$array[$item]['error'] = TRUE;
 			
 			if ( ! isset($options['expected']))
 			{
@@ -163,12 +166,71 @@ class Devtools_Route_Tester {
 			}
 			else if ($options['result'] == $options['expected'])
 			{
-				$array[$item]['error'] = false;
+				$array[$item]['error'] = FALSE;
 			}
 		}
 		
 		return $array;
 	}
-
+	
+	/**
+	 * Get or set the url parameter for Route_Tester::create_tests()
+	 * 
+	 * @param  string  url to test
+	 * @return mixed
+	 */
+	public function url($url = NULL)
+	{
+		if($url === NULL)
+			return $this->_url;
+			
+		$this->_url = $url;
+		return $this;
+	}
+	
+	/**
+	 * Get or set the route name parameter for Route_Tester::create_tests()
+	 * 
+	 * @param  string  the route this url matched
+	 * @return mixed
+	 */
+	public function route($name = NULL)
+	{
+		if($name === NULL)
+			return $this->_route;
+			
+		$this->_route = $name;
+		return $this;
+	}
+	
+	/**
+	 * Get or set the returned params from route used in Route_Tester::create_tests()
+	 * 
+	 * @param  array  setted params will be auto-concated with exiting ones
+	 * @return mixed
+	 */
+	public function params($params = NULL)
+	{
+		if( ! $params)
+			return $this->_params;
+			
+		$this->_params = array_merge($this->_params, $params);
+		return $this;
+	}
+	
+	/**
+	 * Get or set the returned params from route used in Route_Tester::create_tests()
+	 * 
+	 * @param  array  setted params will be auto-merged with exiting ones
+	 * @return mixed
+	 */
+	public function expected_params($params = NULL)
+	{
+		if( ! $params)
+			return $this->_expected_params;
+			
+		$this->_expected_params = $params;
+		return $this;
+	}
 }
 
