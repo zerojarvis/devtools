@@ -32,7 +32,7 @@
 	<?php echo Form::open(Request::current(), array('method' => 'GET')) ?>
 		<label>Test the url:</label>
 		<?php echo Form::input('url',Arr::get($_POST,'url'),array('style'=>'width:300px')) ?>
-		<?php echo form::submit('test','Test'); ?>
+		<?php echo form::submit(NULL,'Test'); ?>
 	<?php echo Form::close() ?>
 </p>
 
