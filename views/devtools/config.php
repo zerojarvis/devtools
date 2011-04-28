@@ -10,10 +10,10 @@ foreach ($configs as $path => $name)
 	{
 		echo Kohana_Debug::vars(Kohana::config($name));
 	}
-	catch (exception $e)
+	catch (Exception $e)
 	{
 		echo "Something went terribly wrong. This is usually caused by
 		      undefined constants because of missing dependancies. Error
-			  message: " . Kohana::exception_text($e);
+			  message: " . $e->getMessage();
 	}
 }
