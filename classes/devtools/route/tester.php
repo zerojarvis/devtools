@@ -1,24 +1,172 @@
 <?php defined('SYSPATH') or die ('No direct script access.');
 /**
- * Kohana 3 Route tester class.  Use it by calling [Route::test]
+ * Kohana 3 Route tester class.  Use it by calling [Route_Tester::test]
  *
  * @package	   Bluehawk/Devtools
  * @author     Michael Peters
  */
 class Devtools_Route_Tester {
 	
-	// The url for this test
-	public $url;
+	/**
+	 * @var string  url for test
+	 */
+	protected $_url;
 	
-	// The route this url matched
-	public $route = FALSE;
+	/**
+	 * @var string  the route that this url matched
+	 */
+	protected $_route;
 	
-	// The params the route returned
-	public $params;
+	/**
+	 * @var array   the returned params from route 
+	 */
+	protected $_params = array();
 	
-	// The optional expected params from the config
-	public $expected_params = FALSE;
+	/**
+	 * @var array   the optional expected params from the config file
+	 */
+	protected $_expected_params;
 
+	/**
+	 * Test a URL or an array of URLs to see which routes they match.
+	 *
+	 * If no param is passed it will test the current url:
+	 *
+	 *     // Test the current url
+	 *     echo Route_Tester::test();
+	 * 
+	 * To test on a single url:
+	 *
+	 *     echo Route_Tester::test('some/url/to/test');
+	 *
+	 * To test several urls:
+	 *
+	 *     echo Route_Tester::test(array(
+	 *         'some/url/to/test',
+	 *         'another/url',
+	 *         'guide/api/Class',
+	 *         'guide/media/image.png',
+	 *     ));
+	 *
+	 * You may also pass the route and parameters you expect, by passing each
+	 * url as a key with an array of expected values.
+	 *
+	 *     $urls = array(
+	 *         'guide/media/image.png' = array(
+	 *             'route' => 'docs/media',
+	 *             'controller' => 'userguide',
+	 *             'action' => 'media',
+	 *             'file' => 'image.png',
+	 *         ),
+	 *
+	 *         'blog/5/some-title` = array(
+	 *             'route' => 'blog',
+	 *             'controller' => 'blog',
+	 *             'action' => 'article',
+	 *             'id' => '5',
+	 *             'title' => 'some-title',
+	 *         ),
+	 *     );
+	 *     echo Route_Tester::test($urls);
+	 *
+	 * It's useful to store your array of urls to be tested in a config file,
+	 * for example in `application/config/my-route-tests.php` return an array
+	 * similar to the previous examples then call:
+	 *
+	 *     echo Route_Tester::test(Kohana::config('your-route-tests'));
+	 *
+	 * @author    Michael Peters
+	 * @license   http://creativecommons.org/licenses/by-sa/3.0/
+	 */
+	public static function test($urls = NULL)
+	{
+		// If no url provide, use the current url
+		if ($urls === NULL)
+		{
+			$urls = Request::current()->uri();
+		}
+		return View::factory('devtools/route-test',array(
+			// Get all the tests
+			'tests' => Route_Tester::create_tests($urls),
+		));
+	}
+	
+	/**
+	 * Load tests from a unittest test_data folder and refatore the array
+	 * to make it compatible with route::test pattern
+	 * 
+	 * Your unittest provider must be like this:
+	 *     return = array(
+	 *         array(array(
+	 *             'guide/media/image.png' = array(
+	 *                 'route' => 'docs/media',
+	 *                 'controller' => 'userguide',
+	 *                 'action' => 'media',
+	 *                 'file' => 'image.png',
+	 *             ),
+	 *         )),
+	 *         array(array(
+	 *             'blog/5/some-title' = array(
+	 *                 'route' => 'blog',
+	 *                 'controller' => 'blog',
+	 *                 'action' => 'article',
+	 *                 'id' => '5',
+	 *                 'title' => 'some-title',title' => 'some-title',
+	 *             ),
+	 *         )),
+	 *     );
+	 * 
+	 * It's usefull to keep a generic unittest and visual dump of tests with
+	 * devtools/routetest
+	 * 
+	 * To load your files in the config/route-test.php will be like this:
+	 * 
+	 *     return Route_Tester::load( Kohana::find_file('tests', 'test_data/routes/user') );
+	 * 
+	 * And you can load all test files from a folder like this:
+	 * 
+	 *     return Route_Tester::load( Kohana::list_files('tests/test_data/routes') );
+	 * 
+	 * finaly you can merge config-tests with your unittests (file or folder style) like this:
+	 * 
+	 *     return Route_Tester::load( Kohana::list_files('tests/test_data/routes') ) + array(
+	 *         'blog/5/some-title` = array(
+	 *             'route' => 'blog',
+	 *             'controller' => 'blog',
+	 *             'action' => 'article',
+	 *             'id' => '5',
+	 *             'title' => 'some-title',
+	 *         ),
+	 *     );
+	 * 
+	 * 
+	 * @author Gabriel Reitz Giannattasio <gabriel@fleep.me>
+	 * 
+	 * @param   mixed  will include a file or a array list of files
+	 * @return  array  formated config route-test 
+	 */
+	public static function load($kohana_files) 
+	{
+		$tests = array();
+		
+		if(is_array($kohana_files))
+		{
+			foreach ($kohana_files as $file)
+			{
+				foreach (Kohana::load($file) as $test)
+					$tests = is_array($test[0])
+					       ? ($tests+$test[0])
+					       : $tests;
+			}
+		}
+		else 
+		{
+			foreach (Kohana::load($kohana_files) as $test)
+				$tests += $test[0];
+		}
+		return $tests;
+	}
+	
 	/**
 	 * Get an array of Route_Tester objects from the config settings
 	 *
@@ -32,7 +180,7 @@ class Devtools_Route_Tester {
 			$tests = array($tests);
 		}
 		
-		$array = array();
+		$tests_instances = array();
 		
 		// Get the url and optional expected_params from the config
 		foreach ($tests as $key => $value)
@@ -40,31 +188,26 @@ class Devtools_Route_Tester {
 			$current = new Route_Tester();
 			
 			if (is_array($value))
-			{
-				$current->url = $key;
-				$current->expected_params = $value;
-			}
+				$current->url($key)->expected_params($value);
 			else
-			{
-				$current->url = $value;
-			}
+				$current->url($value);
 		
 			// Test each route, and save the route and params if it matches
 			foreach (Route::all() as $route)
 			{
-				if ($current->params = $route->matches($current->url))
+				if ($current->params( $route->matches($current->url()) ))
 				{
-					$current->route = Route::name($route);
-					$current->params = array_merge(array('route'=>$current->route),$current->params);
+					$current->route(Route::name($route))
+						->params( array('route' => $current->route()) );
 					break;
 				}
 			}
 			
-			$array[] = $current;
+			$tests_instances[] = $current;
 			
 		}
 		
-		return $array;
+		return $tests_instances;
 		
 	}
 	
@@ -73,12 +216,12 @@ class Devtools_Route_Tester {
 		$array = array();
 		
 		// Add the result and expected keys to the array
-		foreach ($this->params as $param => $value)
+		foreach ($this->params() as $param => $value)
 		{
 			$array[$param]['result'] = $value;
 		}
 		
-		foreach ($this->expected_params as $param => $value)
+		foreach ($this->expected_params() as $param => $value)
 		{
 			$array[$param]['expected'] = $value;
 		}
@@ -87,24 +230,83 @@ class Devtools_Route_Tester {
 		foreach ($array as $item => $options)
 		{
 			// Assume they don't match.
-			$array[$item]['error'] = true;
+			$array[$item]['error'] = TRUE;
 			
 			if ( ! isset($options['expected']))
 			{
-				$array[$item]['expected'] = '[none]';
+				$array[$item]['expected'] = '';
 			}
 			else if ( ! isset($options['result']))
 			{
-				$array[$item]['result'] = '[none]';
+				$array[$item]['result'] = '';
 			}
-			else if ($options['result'] == $options['expected'])
+			else if ($options['result'] === $options['expected'])
 			{
-				$array[$item]['error'] = false;
+				$array[$item]['error'] = FALSE;
 			}
 		}
 		
 		return $array;
 	}
-
+	
+	/**
+	 * Get or set the url parameter for Route_Tester::create_tests()
+	 * 
+	 * @param  string  url to test
+	 * @return mixed
+	 */
+	public function url($url = NULL)
+	{
+		if($url === NULL)
+			return $this->_url;
+			
+		$this->_url = $url;
+		return $this;
+	}
+	
+	/**
+	 * Get or set the route name parameter for Route_Tester::create_tests()
+	 * 
+	 * @param  string  the route this url matched
+	 * @return mixed
+	 */
+	public function route($name = NULL)
+	{
+		if($name === NULL)
+			return $this->_route;
+			
+		$this->_route = $name;
+		return $this;
+	}
+	
+	/**
+	 * Get or set the returned params from route used in Route_Tester::create_tests()
+	 * 
+	 * @param  array  setted params will be auto-concated with exiting ones
+	 * @return mixed
+	 */
+	public function params($params = NULL)
+	{
+		if( ! $params)
+			return $this->_params;
+			
+		$this->_params = array_merge($this->_params, $params);
+		return $this;
+	}
+	
+	/**
+	 * Get or set the returned params from route used in Route_Tester::create_tests()
+	 * 
+	 * @param  array  setted params will be auto-merged with exiting ones
+	 * @return mixed
+	 */
+	public function expected_params($params = NULL)
+	{
+		if( ! $params)
+			return $this->_expected_params;
+			
+		$this->_expected_params = $params;
+		return $this;
+	}
 }
 

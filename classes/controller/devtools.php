@@ -11,7 +11,7 @@ class Controller_devtools extends Controller {
 	
 	public function after()
 	{
-		$this->request->response = $this->template;
+		$this->response->body($this->template);
 	}
 
 	/**
@@ -38,7 +38,7 @@ class Controller_devtools extends Controller {
 	public function action_routetest()
 	{
 		// Check if a url was provided
-		$url = Arr::get($_POST,'url',FALSE);
+		$url = $this->request->query("url");
 		
 		if ( ! $url)
 		{
